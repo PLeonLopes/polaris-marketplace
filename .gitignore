@@ -1,0 +1,30 @@
+# Environment variables and secrets
+.env
+.env.*
+!.example.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Build output
+build/
+dist/
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Generated PR descriptions (pr-description skill output)
+*_pr_description.md
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
