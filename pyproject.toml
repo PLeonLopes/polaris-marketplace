@@ -1,0 +1,91 @@
+[project]
+name = "polaris-marketplace"
+version = "0.1.0"
+description = "Development tooling for the Polaris Claude Code marketplace."
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.uv]
+# Not a Python package: uv only manages the development environment.
+package = false
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.31.4",
+    "codespell>=2.4.1",
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.0",
+    "pytest-cov>=4.0.0",
+    "pyyaml>=6.0.2",
+    "ruff>=0.12.12",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-vs --tb=short"
+markers = [
+    "api: marks tests that require API calls (deselect with '-m \"not api\"')",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.ruff]
+extend-exclude = [".venv", "build", "dist"]
+line-length = 100
+indent-width = 4
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle: basic Python style
+    "F",   # pyflakes: detect various errors
+    "I",   # isort: import sorting
+    "B",   # flake8-bugbear: bug detection
+    "Q",   # flake8-quotes: consistent quotes
+    "A",   # flake8-builtins: don't shadow builtins
+    "C4",  # flake8-comprehensions: better comprehensions
+    "T20", # flake8-print: detect print statements
+    "RET", # flake8-return: return statement consistency
+    "SIM", # flake8-simplify: code simplification
+    "ARG", # flake8-unused-arguments: detect unused args
+    "UP",  # pyupgrade: use modern Python
+    "RUF", # ruff-specific rules
+    "PT",  # flake8-pytest-style
+]
+# print() is the intended output channel of CI scripts.
+ignore = ["T201"]
+pydocstyle.convention = "google"
+# Which rules can auto-fix your code (safe subset)
+fixable = ["A", "ARG", "B", "C4", "E", "F", "I", "PT", "Q", "RET", "RUF", "SIM", "T20", "UP"]
+# Allow unused variables when they start with underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.basedpyright]
+typeCheckingMode = "basic"
+exclude = ["**/.venv/**", "build", "dist"]
+include = ["**/*.py", "**/*.pyi"]
+venvPath = "."
+venv = ".venv"
+reportMissingImports = false
+
+[tool.codespell]
+# Portuguese words codespell would "fix" into English. The hook runs with
+# --write-changes (it REWRITES files), so a false positive silently corrupts text —
+# e.g. pt-BR trigger phrases in skill descriptions and trigger-test prompts.
+#   ser -> set, nome -> none, nomes -> gnomes, meu -> menu, erro -> error,
+#   itens -> items, atual -> actual, gere -> here, fale -> false, vai -> via,
+#   cliente -> client, comercial -> commercial, funcional -> functional, sinal -> signal
+# Keep this list a UNION: when two branches add words, keep both sides.
+ignore-words-list = "ser,nome,nomes,meu,erro,erros,itens,atual,gere,fale,vai,cliente,comercial,funcional,sinal"
+skip = "uv.lock,.venv"
