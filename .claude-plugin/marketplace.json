@@ -1,0 +1,11 @@
+{
+  "name": "polaris",
+  "owner": {
+    "name": "PLeonLopes"
+  },
+  "metadata": {
+    "description": "Polaris — a personal Claude Code marketplace of skills, plugins, agents, commands, hooks and MCP servers.",
+    "version": "0.1.0"
+  },
+  "plugins": []
+}
