@@ -1,0 +1,83 @@
+# Local quality gates. Install once per clone:
+#   uv run pre-commit install
+# Run everything manually:
+#   uv run pre-commit run --all-files
+#
+# Tools with a Python package (ruff, codespell, basedpyright, pytest) run through `uv run`,
+# so their versions come from uv.lock — the same versions CI uses.
+
+default_install_hook_types: [pre-commit, commit-msg]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+      - id: debug-statements
+      - id: check-executables-have-shebangs
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  - repo: local
+    hooks:
+      - id: conventional-commits
+        name: conventional commits
+        entry: .githooks/commit-msg
+        language: script
+        stages: [commit-msg]
+
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix --exit-non-zero-on-fix --ignore=E501
+        language: system
+        types: [python]
+
+      - id: codespell
+        name: codespell
+        # Ignore list (Portuguese words) lives in [tool.codespell] in pyproject.toml.
+        entry: uv run codespell --write-changes
+        language: system
+        types: [text]
+        exclude: ^uv\.lock$
+
+      - id: basedpyright
+        name: basedpyright
+        entry: uv run basedpyright
+        language: system
+        types: [python]
+
+      - id: uv-lock
+        name: uv.lock is up to date
+        entry: uv lock --check
+        language: system
+        files: ^(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+
+      - id: validate-marketplace
+        name: validate marketplace
+        entry: uv run scripts/ci/validate-marketplace.py
+        language: system
+        files: ^(\.claude-plugin/|plugins/|scripts/ci/validate-marketplace\.py)
+        pass_filenames: false
+
+      - id: pytest
+        name: pytest (no API)
+        entry: uv run pytest -m "not api" -q
+        language: system
+        files: ^(scripts/|tests/|\.githooks/)
+        pass_filenames: false
