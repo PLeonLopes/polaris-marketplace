@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Validates the commit message subject against Conventional Commits.
+#
+# Installed through pre-commit (see .pre-commit-config.yaml):
+#   uv run pre-commit install
+#
+# Bypass in exceptional cases only:
+#   git commit --no-verify -m "..."
+
+set -euo pipefail
+
+SUBJECT=$(head -n 1 "$1")
+
+# Auto-generated git/GitHub messages: merges, reverts, autosquash fixups
+AUTO_GENERATED='^(Merge (branch|pull request|remote)|Merged (in |.+ into )|Revert "|fixup! |squash! |amend! )'
+if [[ "$SUBJECT" =~ $AUTO_GENERATED ]]; then
+    exit 0
+fi
+
+VALID='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._-]+\))?!?: [^ ].+'
+if [[ "$SUBJECT" =~ $VALID ]]; then
+    exit 0
+fi
+
+cat >&2 <<MSG
+
+  ERROR: commit message does not follow Conventional Commits.
+
+  Your message : $SUBJECT
+  Expected     : <type>[(scope)][!]: <description>
+
+  Examples:
+    feat(documentation): add pr-description skill
+    fix: handle empty marketplace
+    feat!: rename plugin polaris-docs to polaris-documentation
+
+  Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+  Bump:  feat -> MINOR | ! -> MAJOR | others -> PATCH
+
+MSG
+exit 1
