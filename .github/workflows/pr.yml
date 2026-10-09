@@ -55,7 +55,7 @@ jobs:
         run: uv run pre-commit run --all-files --show-diff-on-failure
 
   tests:
-    name: Tests (No API)
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -68,7 +68,7 @@ jobs:
         run: uv sync --locked
 
       - name: Run tests
-        run: uv run pytest -m "not api"
+        run: uv run pytest
 
   plugin-versions:
     name: Plugin versions bumped

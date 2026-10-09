@@ -28,7 +28,6 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-vs --tb=short"
 markers = [
-    "api: marks tests that require API calls (deselect with '-m \"not api\"')",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
 
