@@ -90,11 +90,12 @@ docs: add MCP section to contributing guide
 1. Push the branch and open a PR targeting `main`.
 2. Split the work into a few focused commits, one per topic. PRs are merged with a **merge commit**: every commit lands on `main` as-is, so each one must be a Conventional Commit, and GitHub adds a `Merge pull request #N` commit that marks the PR. Use a Conventional Commit for the PR title too.
 3. Describe what changed, why, and how to test it.
-4. Wait for the four PR checks (Conventional Commits, Lint & Check, Tests, Plugin versions bumped) to pass before merging.
-5. Merge and clean up:
+4. Wait for the four PR checks (Conventional Commits, Lint & Check, Tests, Plugin versions bumped) to pass. They are required: `main` rejects a merge while any of them is red.
+5. Get one approving review. The maintainer, working alone, merges with the admin bypass instead (`gh pr merge --merge --admin`), which skips only the approval — never the checks. See [`.github/rulesets/README.md`](.github/rulesets/README.md).
+6. Merge and clean up:
 
    ```bash
-   gh pr merge --merge --delete-branch
+   gh pr merge --merge --delete-branch   # add --admin to bypass the approval
    git checkout main && git pull
    git branch -d <your-branch>   # commits are preserved, so a plain -d works
    ```
