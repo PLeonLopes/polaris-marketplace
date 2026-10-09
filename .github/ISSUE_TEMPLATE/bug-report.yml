@@ -1,0 +1,46 @@
+name: Bug report
+description: A plugin, skill, hook or script does not behave as documented.
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      description: Plugin and skill/command/hook, e.g. polaris-documentation / pr-description.
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you asked Claude, what it did, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. /plugin install polaris-documentation@polaris
+        2. Ask: "..."
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Output of `claude --version` and the plugin version from `/plugin`.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or output
+      description: Remove any secret or personal data before pasting.
+      render: shell

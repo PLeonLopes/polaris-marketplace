@@ -76,8 +76,8 @@ repos:
         pass_filenames: false
 
       - id: pytest
-        name: pytest (no API)
-        entry: uv run pytest -m "not api" -q
+        name: pytest
+        entry: uv run pytest -q
         language: system
         files: ^(scripts/|tests/|\.githooks/)
         pass_filenames: false

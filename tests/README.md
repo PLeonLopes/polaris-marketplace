@@ -24,11 +24,8 @@ tests/
 ```bash
 uv sync
 
-# Run all tests
+# Run all tests (what pre-commit and CI run)
 uv run pytest
-
-# Run without API calls (what pre-commit and CI run)
-uv run pytest -m "not api"
 
 # With coverage
 uv run pytest --cov=scripts
@@ -39,5 +36,4 @@ uv run pytest --cov=scripts
 - **Hyphenated CI scripts** (`scripts/ci/<name>.py`) are entry points, not import targets. Load them with `importlib` under a private module name (see `tests/scripts/ci/test_validate_marketplace.py`) and exercise the exit-code contract via `subprocess`.
 - **Isolation:** build fixtures under pytest's `tmp_path`; never read or modify the real `plugins/` tree. Scripts that read git history are tested against a throwaway repository created with `git init` inside `tmp_path`, with a local commit identity.
 - **Markers** (configured in `pyproject.toml`):
-  - `@pytest.mark.api` — calls the Anthropic API (skip with `-m "not api"`)
   - `@pytest.mark.slow` — slow tests (skip with `-m "not slow"`)

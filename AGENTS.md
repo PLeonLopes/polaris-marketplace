@@ -37,7 +37,7 @@ uv sync                                   # create .venv with dev tools
 uv run pre-commit install                 # install pre-commit + commit-msg hooks (once per clone)
 
 uv run pre-commit run --all-files         # run every quality gate
-uv run pytest -m "not api"                # tests that need no API access
+uv run pytest                             # test suite
 uv run basedpyright                       # type checking
 uv run scripts/ci/validate-marketplace.py # repository conventions
 claude plugin validate .                  # Claude Code manifest schema
@@ -84,7 +84,7 @@ Every pull request runs `.github/workflows/pr.yml`. Each job is a status check:
 |-------|--------------|
 | Conventional Commits | `scripts/ci/check-commit-messages.sh` — every commit in the PR, using `.githooks/commit-msg` |
 | Lint & Check (pre-commit) | `pre-commit run --all-files` (pytest skipped, it has its own job) |
-| Tests (No API) | `pytest -m "not api"` |
+| Tests | `pytest` |
 | Plugin versions bumped | `scripts/ci/check-plugin-versions.py` — changed plugins and the marketplace must bump their versions |
 
 All of them can be reproduced locally before pushing:
@@ -92,9 +92,18 @@ All of them can be reproduced locally before pushing:
 ```bash
 bash scripts/ci/check-commit-messages.sh origin/main
 uv run pre-commit run --all-files
-uv run pytest -m "not api"
+uv run pytest
 uv run scripts/ci/check-plugin-versions.py origin/main
 ```
+
+## Branch protection
+
+`main` is protected by two GitHub rulesets kept as code in `.github/rulesets/` (see its README):
+
+- **main: required checks** — the four PR checks above, no force-push, no deletion. No bypass.
+- **main: pull request review** — pull requests only, 1 approval, resolved conversations, merge commits only. Repository admins may bypass it when merging a PR.
+
+Never push directly to `main`. When renaming a job in `pr.yml`, update `main-required-checks.json` in the same PR and re-apply it.
 
 ## Sensitive changes
 
