@@ -28,6 +28,27 @@ plugins/
 
 Only the directories a plugin actually needs should exist. Claude Code discovers `skills/`, `agents/`, `commands/`, `hooks/hooks.json` and `.mcp.json` by convention, so `plugin.json` does not need to list them.
 
+## Development environment
+
+Tooling is managed by [uv](https://docs.astral.sh/uv/); `pyproject.toml` only pins development dependencies (this repository is not a Python package).
+
+```bash
+uv sync                                   # create .venv with dev tools
+uv run pre-commit install                 # install pre-commit + commit-msg hooks (once per clone)
+
+uv run pre-commit run --all-files         # run every quality gate
+uv run pytest -m "not api"                # tests that need no API access
+uv run basedpyright                       # type checking
+uv run scripts/ci/validate-marketplace.py # repository conventions
+claude plugin validate .                  # Claude Code manifest schema
+```
+
+`scripts/ci/validate-marketplace.py` enforces the conventions below (registration, naming, semver, flat skills, frontmatter, no hardcoded user paths). When a convention changes, update the validator and its tests in `tests/scripts/ci/` in the same PR.
+
+CI scripts in `scripts/ci/` are hyphenated entry points (`#!/usr/bin/env python3` + PEP 723 inline metadata), run with `uv run scripts/ci/<name>.py`. Tests mirror the repository layout — see [tests/README.md](tests/README.md).
+
+Spell checking runs with `--write-changes`: Portuguese words it would wrongly "fix" are listed in `[tool.codespell]` in `pyproject.toml`. Add new ones there instead of disabling the hook.
+
 ## Conventions
 
 - **Language:** all repository content (code, docs, skill frontmatter, YAML keys) is written in English.

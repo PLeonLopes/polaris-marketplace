@@ -4,6 +4,7 @@ How to add content to the Polaris marketplace and ship it through the git workfl
 
 ## Table of contents
 
+0. [Development setup](#development-setup)
 1. [Git workflow](#git-workflow)
 2. [Creating a plugin](#creating-a-plugin)
 3. [Creating a skill](#creating-a-skill)
@@ -13,6 +14,25 @@ How to add content to the Polaris marketplace and ship it through the git workfl
 7. [Adding an MCP server](#adding-an-mcp-server)
 8. [Versioning](#versioning)
 9. [Testing locally](#testing-locally)
+
+---
+
+## 0. Development setup <a name="development-setup"></a>
+
+Requirements: [uv](https://docs.astral.sh/uv/) and [Claude Code](https://claude.com/claude-code).
+
+```bash
+git clone https://github.com/PLeonLopes/polaris-marketplace.git
+cd polaris-marketplace
+uv sync                      # dev tools in .venv
+uv run pre-commit install    # quality gates on every commit
+```
+
+From then on, every `git commit` runs formatting, linting, spell checking, the marketplace validator and the tests, and rejects messages that are not Conventional Commits. To run everything by hand:
+
+```bash
+uv run pre-commit run --all-files
+```
 
 ---
 
@@ -260,6 +280,9 @@ Bump rules follow the commit types: `feat` → minor, breaking `!` → major, an
 # Validate the marketplace and a plugin
 claude plugin validate .
 claude plugin validate plugins/<domain>
+
+# Validate repository conventions (naming, registration, skills, paths)
+uv run scripts/ci/validate-marketplace.py
 ```
 
 Then, in a Claude Code session in **another project**:
