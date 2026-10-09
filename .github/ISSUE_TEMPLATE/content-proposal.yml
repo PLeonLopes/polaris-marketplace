@@ -1,0 +1,70 @@
+name: Content proposal
+description: Propose a new skill, agent, command, hook, MCP server or plugin.
+title: "[proposal]: "
+labels: ["proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the need, not the implementation. The more concrete the trigger examples, the better the skill's `description` will be.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - Skill
+        - Agent
+        - Command
+        - Hook
+        - MCP server
+        - New plugin
+    validations:
+      required: true
+
+  - type: input
+    id: plugin
+    attributes:
+      label: Target plugin
+      description: Existing plugin (e.g. polaris-documentation) or the name of a new one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What do you do by hand today, and why is it worth automating?
+    validations:
+      required: true
+
+  - type: textarea
+    id: triggers
+    attributes:
+      label: Trigger examples
+      description: Real phrases that should activate it (one per line, any language).
+      placeholder: |
+        write the PR description
+        abra um PR com essas mudanças
+    validations:
+      required: true
+
+  - type: textarea
+    id: non-triggers
+    attributes:
+      label: Should NOT trigger on
+      description: Adjacent requests that belong to something else.
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Steps Claude should follow and what it should produce.
+
+  - type: checkboxes
+    id: sanitization
+    attributes:
+      label: Sanitization
+      options:
+        - label: The proposal contains no secrets, credentials, personal data or proprietary third-party content.
+          required: true
