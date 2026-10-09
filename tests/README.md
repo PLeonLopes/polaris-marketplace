@@ -13,6 +13,9 @@ tests/
 │   └── test_commit_msg.py            # .githooks/commit-msg
 └── scripts/
     └── ci/
+        ├── test_check_commit_messages.py  # scripts/ci/check-commit-messages.sh
+        ├── test_check_plugin_versions.py  # scripts/ci/check-plugin-versions.py
+        ├── test_determine_bump.py         # scripts/ci/determine-bump.sh
         └── test_validate_marketplace.py   # scripts/ci/validate-marketplace.py
 ```
 
@@ -34,7 +37,7 @@ uv run pytest --cov=scripts
 ## Conventions
 
 - **Hyphenated CI scripts** (`scripts/ci/<name>.py`) are entry points, not import targets. Load them with `importlib` under a private module name (see `tests/scripts/ci/test_validate_marketplace.py`) and exercise the exit-code contract via `subprocess`.
-- **Isolation:** build fixtures under pytest's `tmp_path`; never read or modify the real `plugins/` tree.
+- **Isolation:** build fixtures under pytest's `tmp_path`; never read or modify the real `plugins/` tree. Scripts that read git history are tested against a throwaway repository created with `git init` inside `tmp_path`, with a local commit identity.
 - **Markers** (configured in `pyproject.toml`):
   - `@pytest.mark.api` — calls the Anthropic API (skip with `-m "not api"`)
   - `@pytest.mark.slow` — slow tests (skip with `-m "not slow"`)

@@ -1,5 +1,6 @@
 [project]
 name = "polaris-marketplace"
+# Not the release version: releases are GitHub Releases (v*) computed from commit types.
 version = "0.1.0"
 description = "Development tooling for the Polaris Claude Code marketplace."
 readme = "README.md"
