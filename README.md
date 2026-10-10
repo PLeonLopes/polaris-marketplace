@@ -36,7 +36,7 @@ To keep the marketplace up to date:
 
 | Plugin | Description | Contents |
 |--------|-------------|----------|
-| _none yet_ | — | — |
+| [`polaris-documentation`](plugins/documentation/) | Documentation helpers for everyday engineering work | Skill: `pull-request-description` |
 
 ## Structure <a name="structure"></a>
 
