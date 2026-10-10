@@ -20,7 +20,7 @@ dist/
 .claude/settings.local.json
 
 # Generated PR descriptions (pr-description skill output)
-*_pr_description.md
+*_pr_description.*
 
 # Editors and OS
 .idea/
