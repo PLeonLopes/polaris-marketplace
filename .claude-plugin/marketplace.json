@@ -4,8 +4,14 @@
     "name": "PLeonLopes"
   },
   "metadata": {
-    "description": "Polaris — a personal Claude Code marketplace of skills, plugins, agents, commands, hooks and MCP servers.",
-    "version": "0.1.0"
+    "description": "Polaris: a personal Claude Code marketplace with skills, agents, commands, hooks and MCP servers, packaged as installable plugins.",
+    "version": "0.2.0"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "polaris-documentation",
+      "source": "./plugins/documentation",
+      "description": "Documentation helpers: structured, reviewer-friendly pull request descriptions generated from the branch diff."
+    }
+  ]
 }
