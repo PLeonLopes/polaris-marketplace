@@ -118,7 +118,7 @@ Rollback: {ROLLBACK}
 | `{MOTIVATION}` | Why the change was made — the problem it solves, not the mechanics. Four lines maximum |
 | `{CHANGE_AREA_NAME}` | Short label for a group of related changes (e.g., `Skill`, `Templates`, `CI`). Repeat per area |
 | `{CHANGE_AREA_BULLETS}` | One-line bullets under that area, each referencing a path. At most 8 top-level bullets across all areas |
-| `{HOW_TO_TEST}` | Numbered steps a reviewer runs to verify the change, with exact commands |
+| `{HOW_TO_TEST}` | Numbered steps a reviewer runs to verify the change. Commands and CI checks come only from the verification inventory (SKILL.md Step 1); use a manual step where nothing covers the change |
 
 ### Conditional blocks
 
@@ -143,14 +143,15 @@ Rollback: {ROLLBACK}
 | `{BEFORE_AFTER_TABLE_ROWS}` | One `\| aspect \| before \| after \|` row per changed behavior |
 | `{BREAKING_CHANGES_TABLE_ROWS}` | One `\| what breaks \| impact \| migration \|` row per breaking change. Migration must be actionable |
 | `{DEMO_ITEM}` | Name of one screen, flow, or command output worth a screenshot or clip. Repeat per item. Never fabricate a media link |
-| `{RISKS}` | Bullet list of risks introduced by the change |
-| `{ROLLBACK}` | How to undo the change if it misbehaves in production |
+| `{RISKS}` | Bullet list of risks introduced by the change. Any check or tool named must exist in the verification inventory; a missing one appears only as an explicit suggestion |
+| `{ROLLBACK}` | How to undo the change if it misbehaves in production, using only commands and processes the repository actually has |
 | `{RELATED}` | Bullet list of links to issues, tickets, ADRs, or prior pull requests |
 
 ### Rendering rules
 
 - Exactly one of `{IF_DEMO_ITEMS}` / `{IF_NO_DEMO_ITEMS}` renders — the `## Demo` heading itself is always present.
 - Never substitute a credential-shaped value read from the diff into any placeholder.
+- Never name a command, CI check, or tool in `{HOW_TO_TEST}`, `{RISKS}`, or `{ROLLBACK}` that is not in the verification inventory, and never call a local-only command a CI check.
 - Leave no template syntax in the output: no stray `{PLACEHOLDER}`, `{IF_...}`, `{END_IF}`, or `{FOR_EACH_...}` markers.
 - No em dashes (—) in the rendered output.
 - Image tags set only `width`, sized to the content (about 800 for full screenshots, 480–600 for terminal output or small details), never `height`.

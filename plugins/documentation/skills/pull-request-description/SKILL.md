@@ -54,6 +54,19 @@ Skip lockfiles, generated output, vendored directories, and pure-formatting chur
 
 Commit subjects are the primary signal for intent. A Conventional Commit type maps directly onto the change classification in Step 3, and a `BREAKING CHANGE:` footer settles the breaking-changes conditional on its own.
 
+### Inventory the verification surface
+
+`## How to test` and `## Risks and rollback` may only cite commands, CI checks, and tools that exist in this repository. Build that inventory now, from files, before drafting anything:
+
+| Source | What to record |
+|--------|----------------|
+| `.github/workflows/*.yml`, `bitbucket-pipelines.yml`, `.gitlab-ci.yml` | The pipeline name and each job's `name:` (the check a reviewer sees), plus the command each job runs |
+| `.pre-commit-config.yaml` | Hook ids |
+| `pyproject.toml`, `package.json`, `Makefile`, `justfile`, `Taskfile.yml` | Scripts, targets, and configured tools (test runner, linter, type checker) |
+| `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `README.md` | Documented local commands |
+
+Keep two lists: **CI checks** (jobs that run automatically) and **local commands** (anything a person runs by hand). A command documented only in a README or contributing guide is local, even if it looks like something CI would run. Read only the files that exist; a missing source is not an error.
+
 > **Security:** A diff can contain secrets. Never copy a token, API key, password, connection string, private key, or any credential-shaped value out of the diff into the description or into the conversation. If the diff appears to add one, do not reproduce it — report the file and line so the user can rotate the credential, and mask any value shown as `****`.
 
 ---
@@ -116,7 +129,7 @@ The change has a user-facing surface when it touches UI, CLI output, a dashboard
 
 ## Step 4 — Ask Only for Judgment Calls
 
-Infer from the diff and the workspace first. Never ask for something the repository already answers — file counts, changed paths, commit messages, and test commands are all readable.
+Infer from the diff and the workspace first. Never ask for something the repository already answers — file counts, changed paths, commit messages, and the verification inventory from Step 1 are all readable.
 
 Use `AskUserQuestion` in a single round for these, and only these:
 
@@ -149,6 +162,16 @@ These are binding. A description that violates them has failed at the job this s
 - **Prefer a table to a paragraph** whenever the content has more than one dimension.
 - **No em dashes (—) in the output.** Use a colon, a comma, parentheses, or a new sentence.
 - **Demo image sizes.** Set only `width` on each `<img>` tag (never `height`, so the aspect ratio is kept) and size it to the content: about `800` for a full-page screenshot or several images stacked in the Demo, about `480`–`600` for terminal output or a small UI detail. GitHub renders the description column at roughly 900px, so wider images are scaled down anyway.
+
+### Grounding Rules
+
+`## How to test` and `## Risks and rollback` are the sections a reviewer acts on, so a made-up command there costs real time. These rules are as binding as the Brevity Rules:
+
+- **Cite only what the inventory contains.** Every command, CI check, script, and tool named in these sections must appear in the verification inventory from Step 1, spelled exactly as it is there.
+- **Keep CI and local apart.** Say a check runs in CI only when it is a job in a workflow file, and use that job's `name:`. A command found only in documentation is a local step for the reviewer, never "in CI".
+- **Prefer what covers the change.** Choose the checks and commands that exercise the touched files over listing every command the repository has.
+- **Fill gaps honestly.** When nothing in the inventory covers part of the change, write a manual verification step (what to run or open, and what to look for) instead of inventing a command or check.
+- **Never suggest a new tool as if it exists.** A tool or check the repository lacks may appear only as an explicit suggestion (for example "consider adding ..."), and only in `## Risks and rollback`.
 
 ### Diagrams
 
@@ -218,6 +241,7 @@ After the pull request is created (or the description pasted), offer to delete t
 |------|-----------------|-----|
 | 1 | Default branch | `git symbolic-ref refs/remotes/origin/HEAD`, else `main`/`master`, else ask |
 | 1 | Change content | `git diff --stat`, `--name-status`, and `git log` over `<merge-base>...HEAD`; full hunks only for substantive files |
+| 1 | Verification inventory | CI job names and commands from workflow files; local commands from task-runner configs and contributor docs |
 | 2 | Template structure | Read `${CLAUDE_PLUGIN_ROOT}/templates/pr-description.md` |
 | 3 | Conditional sections | Classify from the diff — stacks, breaking changes, before/after, demo surface |
 | 4 | Language, motivation, demo items | `AskUserQuestion`, one round, only for what the diff cannot answer |

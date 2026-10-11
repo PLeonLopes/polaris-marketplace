@@ -1,6 +1,6 @@
 {
   "name": "polaris-documentation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Documentation helpers for everyday engineering work, starting with structured, reviewer-friendly pull request descriptions generated from the branch diff.",
   "author": {
     "name": "PLeonLopes"
