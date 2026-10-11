@@ -42,4 +42,6 @@ echo '*_pr_description.*' >> "$(git rev-parse --git-dir)/info/exclude"
 
 **Output conventions:** the title as the `#` heading, no em dashes, at most 8 change bullets, never pasted diff hunks, and demo images sized with `width` only (about 800 for full screenshots, 480–600 for terminal output).
 
+**Grounded test steps:** "How to test" and "Risks and rollback" only cite commands, CI checks and tools the skill found in the repository (workflow files, task-runner configs, contributor docs). Commands documented for local use are never presented as CI checks.
+
 **Not for:** reviewing, commenting on or merging existing pull requests, commit messages, or project documentation such as READMEs and ADRs.
