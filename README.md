@@ -37,6 +37,7 @@ To keep the marketplace up to date:
 | Plugin | Description | Contents |
 |--------|-------------|----------|
 | [`polaris-documentation`](plugins/documentation/) | Documentation helpers for everyday engineering work | Skill: `pull-request-description` |
+| [`polaris-monitor`](plugins/monitor/) | Keeps you in the loop while Claude Code works | Hooks: beeps on finish, question and permission |
 
 ## Structure <a name="structure"></a>
 

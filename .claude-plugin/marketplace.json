@@ -5,13 +5,18 @@
   },
   "metadata": {
     "description": "Polaris: a personal Claude Code marketplace with skills, agents, commands, hooks and MCP servers, packaged as installable plugins.",
-    "version": "0.2.1"
+    "version": "0.3.0"
   },
   "plugins": [
     {
       "name": "polaris-documentation",
       "source": "./plugins/documentation",
       "description": "Documentation helpers: structured, reviewer-friendly pull request descriptions generated from the branch diff."
+    },
+    {
+      "name": "polaris-monitor",
+      "source": "./plugins/monitor",
+      "description": "Monitoring and alerts: beeps when Claude finishes, asks a question or needs permission."
     }
   ]
 }

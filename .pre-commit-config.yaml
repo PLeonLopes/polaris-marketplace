@@ -3,7 +3,7 @@
 # Run everything manually:
 #   uv run pre-commit run --all-files
 #
-# Tools with a Python package (ruff, codespell, basedpyright, pytest) run through `uv run`,
+# Tools with a Python package (ruff, codespell, basedpyright, shellcheck, pytest) run through `uv run`,
 # so their versions come from uv.lock — the same versions CI uses.
 
 default_install_hook_types: [pre-commit, commit-msg]
@@ -60,6 +60,12 @@ repos:
         entry: uv run basedpyright
         language: system
         types: [python]
+
+      - id: shellcheck
+        name: shellcheck
+        entry: uv run shellcheck
+        language: system
+        types: [shell]
 
       - id: uv-lock
         name: uv.lock is up to date
