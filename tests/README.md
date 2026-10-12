@@ -11,6 +11,10 @@ Hidden directories drop their leading dot (`.githooks/` → `tests/githooks/`).
 tests/
 ├── githooks/
 │   └── test_commit_msg.py            # .githooks/commit-msg
+├── plugins/
+│   └── monitor/
+│       └── scripts/
+│           └── test_beep.py          # plugins/monitor/scripts/beep.sh (+ hooks.json wiring)
 └── scripts/
     └── ci/
         ├── test_check_commit_messages.py  # scripts/ci/check-commit-messages.sh
@@ -35,5 +39,6 @@ uv run pytest --cov=scripts
 
 - **Hyphenated CI scripts** (`scripts/ci/<name>.py`) are entry points, not import targets. Load them with `importlib` under a private module name (see `tests/scripts/ci/test_validate_marketplace.py`) and exercise the exit-code contract via `subprocess`.
 - **Isolation:** build fixtures under pytest's `tmp_path`; never read or modify the real `plugins/` tree. Scripts that read git history are tested against a throwaway repository created with `git init` inside `tmp_path`, with a local commit identity.
+- **Shell scripts that call external programs** (sound players, `powershell.exe`) are tested with fake executables placed first on `PATH` that log their arguments (see `tests/plugins/monitor/scripts/test_beep.py`). Never let a test reach the real program.
 - **Markers** (configured in `pyproject.toml`):
   - `@pytest.mark.slow` — slow tests (skip with `-m "not slow"`)
