@@ -47,6 +47,8 @@ claude plugin validate .                  # Claude Code manifest schema
 
 CI scripts in `scripts/ci/` are hyphenated entry points (`#!/usr/bin/env python3` + PEP 723 inline metadata), run with `uv run scripts/ci/<name>.py`. Tests mirror the repository layout — see [tests/README.md](tests/README.md).
 
+Shell scripts (detected by shebang, so extensionless hooks too) are linted with [ShellCheck](https://www.shellcheck.net), pinned through `shellcheck-py` in `uv.lock`.
+
 Spell checking runs with `--write-changes`: Portuguese words it would wrongly "fix" are listed in `[tool.codespell]` in `pyproject.toml`. Add new ones there instead of disabling the hook.
 
 ## Conventions
