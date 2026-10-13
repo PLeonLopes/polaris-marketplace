@@ -47,7 +47,7 @@ claude plugin validate .                  # Claude Code manifest schema
 
 CI scripts in `scripts/ci/` are hyphenated entry points (`#!/usr/bin/env python3` + PEP 723 inline metadata), run with `uv run scripts/ci/<name>.py`. Tests mirror the repository layout — see [tests/README.md](tests/README.md).
 
-Shell scripts (detected by shebang, so extensionless hooks too) are linted with [ShellCheck](https://www.shellcheck.net), pinned through `shellcheck-py` in `uv.lock`.
+Shell scripts are linted with [ShellCheck](https://www.shellcheck.net) (detected by shebang, so extensionless hooks too), pinned through `shellcheck-py` in `uv.lock`. Scripts shipped in plugins must run on Linux, macOS (its `/bin/bash` is Bash 3.2) and Windows (Git Bash), and `.gitattributes` keeps them LF everywhere. Tests run them through `tests.shell.BASH`, never a bare `"bash"`.
 
 Spell checking runs with `--write-changes`: Portuguese words it would wrongly "fix" are listed in `[tool.codespell]` in `pyproject.toml`. Add new ones there instead of disabling the hook.
 
@@ -86,7 +86,7 @@ Every pull request runs `.github/workflows/pr.yml`. Each job is a status check:
 |-------|--------------|
 | Conventional Commits | `scripts/ci/check-commit-messages.sh` — every commit in the PR, using `.githooks/commit-msg` |
 | Lint & Check (pre-commit) | `pre-commit run --all-files` (pytest skipped, it has its own job) |
-| Tests | `pytest` |
+| Tests | `pytest` on Ubuntu, macOS and Windows (Git Bash) in `Tests (<os>)` jobs; this check passes only when all three do |
 | Plugin versions bumped | `scripts/ci/check-plugin-versions.py` — changed plugins and the marketplace must bump their versions |
 
 All of them can be reproduced locally before pushing:
@@ -105,7 +105,7 @@ uv run scripts/ci/check-plugin-versions.py origin/main
 - **main: required checks** — the four PR checks above, no force-push, no deletion. No bypass.
 - **main: pull request review** — pull requests only, 1 approval, resolved conversations, merge commits only. Repository admins may bypass it when merging a PR.
 
-Never push directly to `main`. When renaming a job in `pr.yml`, update `main-required-checks.json` in the same PR and re-apply it.
+Never push directly to `main`. When renaming a job in `pr.yml`, update `main-required-checks.json` in the same PR and re-apply it. Matrix jobs report one check per entry (`Tests (ubuntu-latest)`), so a required check that runs as a matrix needs an aggregating job that keeps the required name.
 
 ## Sensitive changes
 

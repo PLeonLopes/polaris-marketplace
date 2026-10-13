@@ -16,6 +16,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.shell import BASH
+
 REPO_ROOT = Path(__file__).resolve().parents[4]
 PLUGIN_DIR = REPO_ROOT / "plugins" / "monitor"
 SCRIPT = PLUGIN_DIR / "scripts" / "beep.sh"
@@ -54,7 +56,7 @@ def run_beep(
     env: dict[str, str], *args: str, stdin: str = "{}"
 ) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        ["bash", SCRIPT, *args], input=stdin, env=env, capture_output=True, text=True, check=False
+        [BASH, SCRIPT, *args], input=stdin, env=env, capture_output=True, text=True, check=False
     )
 
 
@@ -180,7 +182,7 @@ def test_pattern_survives_the_hook_process_group_ending(
         fake_env["PATH"] = f"{tmp_path / 'bin'}{os.pathsep}{tools}"
 
     hook = f"echo '{{}}' | bash '{SCRIPT}' attention; sleep 0.3; kill -TERM -$$"
-    subprocess.run([str(SETSID), "bash", "-c", hook], env=fake_env, check=False)
+    subprocess.run([str(SETSID), BASH, "-c", hook], env=fake_env, check=False)
 
     assert len(wait_for_calls(fake_env, 1)) == 1
 

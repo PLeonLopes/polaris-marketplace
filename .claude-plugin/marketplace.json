@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Polaris: a personal Claude Code marketplace with skills, agents, commands, hooks and MCP servers, packaged as installable plugins.",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "plugins": [
     {
@@ -16,7 +16,7 @@
     {
       "name": "polaris-monitor",
       "source": "./plugins/monitor",
-      "description": "Monitoring and alerts: beeps when Claude finishes, asks a question or needs permission."
+      "description": "Monitoring and alerts: beeps when Claude finishes, asks a question or needs permission, and a usage and context status line."
     }
   ]
 }
