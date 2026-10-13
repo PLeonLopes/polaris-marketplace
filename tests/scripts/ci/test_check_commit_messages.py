@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.shell import BASH
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = REPO_ROOT / "scripts" / "ci" / "check-commit-messages.sh"
 HOOK = REPO_ROOT / ".githooks" / "commit-msg"
@@ -40,7 +42,7 @@ def repo(tmp_path: Path) -> Path:
 
 def run(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        ["bash", SCRIPT, *args], cwd=repo, capture_output=True, text=True, check=False
+        [BASH, SCRIPT, *args], cwd=repo, capture_output=True, text=True, check=False
     )
 
 

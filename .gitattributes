@@ -1,0 +1,4 @@
+# Check every text file out with LF line endings on all platforms. Windows runners
+# (and Windows clones with core.autocrlf) would otherwise turn shell scripts into
+# CRLF files that bash cannot run.
+* text=auto eol=lf

@@ -7,13 +7,15 @@ from pathlib import Path
 
 import pytest
 
+from tests.shell import BASH
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = REPO_ROOT / "scripts" / "ci" / "determine-bump.sh"
 
 
 def bump(subjects: str) -> str:
     result = subprocess.run(
-        ["bash", SCRIPT], input=subjects, capture_output=True, text=True, check=True
+        [BASH, SCRIPT], input=subjects, capture_output=True, text=True, check=True
     )
     return result.stdout.strip()
 

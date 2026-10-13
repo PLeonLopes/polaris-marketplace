@@ -54,9 +54,18 @@ jobs:
           SKIP: pytest
         run: uv run pre-commit run --all-files --show-diff-on-failure
 
-  tests:
-    name: Tests
-    runs-on: ubuntu-latest
+  # Plugins ship shell scripts for Windows, macOS and Linux, so the suite runs on all three.
+  # Git Bash runs the scripts on Windows, as it does for Claude Code hooks there.
+  tests-os:
+    name: Tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v5
 
@@ -67,8 +76,28 @@ jobs:
       - name: Install dev dependencies
         run: uv sync --locked
 
+      # The status line tests skip without jq; fail instead if a runner image drops it.
+      - name: Require jq
+        run: jq --version
+
       - name: Run tests
         run: uv run pytest
+
+  # Single status check named "Tests", so the ruleset does not depend on the matrix.
+  tests:
+    name: Tests
+    needs: tests-os
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every platform to pass
+        env:
+          RESULT: ${{ needs.tests-os.result }}
+        run: |
+          if [ "$RESULT" != "success" ]; then
+              echo "Tests did not pass on every platform (result: $RESULT)."
+              exit 1
+          fi
 
   plugin-versions:
     name: Plugin versions bumped

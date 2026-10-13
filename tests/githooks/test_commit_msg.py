@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.shell import BASH
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HOOK = REPO_ROOT / ".githooks" / "commit-msg"
 
@@ -14,7 +16,7 @@ HOOK = REPO_ROOT / ".githooks" / "commit-msg"
 def run_hook(tmp_path: Path, message: str) -> int:
     message_file = tmp_path / "COMMIT_EDITMSG"
     message_file.write_text(f"{message}\n", encoding="utf-8")
-    return subprocess.run([HOOK, message_file], capture_output=True, check=False).returncode
+    return subprocess.run([BASH, HOOK, message_file], capture_output=True, check=False).returncode
 
 
 @pytest.mark.parametrize(
