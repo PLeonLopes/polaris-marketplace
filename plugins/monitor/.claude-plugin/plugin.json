@@ -1,10 +1,10 @@
 {
   "name": "polaris-monitor",
-  "version": "1.1.0",
-  "description": "Keeps you in the loop while Claude Code works: beeps when Claude finishes a turn, asks a question or needs permission, and a status line with the 5-hour and weekly limits and the context window.",
+  "version": "1.2.0",
+  "description": "Keeps you in the loop while Claude Code works: beeps when Claude finishes a turn, asks a question or needs permission, a status line with the 5-hour and weekly limits and the context window, and an always-on-top window that tracks every running session (Windows, WSL and macOS).",
   "author": {
     "name": "PLeonLopes"
   },
   "license": "MIT",
-  "keywords": ["monitor", "alerts", "beep", "notifications", "hooks", "statusline", "usage", "context", "productivity"]
+  "keywords": ["monitor", "alerts", "beep", "notifications", "hooks", "statusline", "usage", "context", "sessions", "window", "themes", "productivity"]
 }
