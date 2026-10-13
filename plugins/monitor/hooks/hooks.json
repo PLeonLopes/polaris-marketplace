@@ -1,6 +1,17 @@
 {
-  "description": "Beeps when Claude finishes a turn (2 low beeps), asks a question or needs permission (3 high beeps)",
+  "description": "Beeps when Claude finishes a turn (2 low beeps), asks a question or needs permission (3 high beeps), and keeps the opted-in status line script up to date",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/setup-statusline.sh\" \"${CLAUDE_PLUGIN_DATA}\" --sync",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
