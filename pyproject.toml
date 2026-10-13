@@ -87,6 +87,7 @@ reportMissingImports = false
 #   ser -> set, nome -> none, nomes -> gnomes, meu -> menu, erro -> error,
 #   itens -> items, atual -> actual, gere -> here, fale -> false, vai -> via,
 #   cliente -> client, comercial -> commercial, funcional -> functional, sinal -> signal
+# Also code keywords it misreads: inout (Swift) -> input.
 # Keep this list a UNION: when two branches add words, keep both sides.
-ignore-words-list = "ser,nome,nomes,meu,erro,erros,itens,atual,gere,fale,vai,cliente,comercial,funcional,sinal"
+ignore-words-list = "ser,nome,nomes,meu,erro,erros,itens,atual,gere,fale,vai,cliente,comercial,funcional,sinal,inout"
 skip = "uv.lock,.venv"
