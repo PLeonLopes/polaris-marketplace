@@ -1,6 +1,6 @@
 # polaris-monitor
 
-Keeps you in the loop while Claude Code works, so you can leave sessions running and switch to other tasks: it beeps when Claude finishes a turn, asks you a question or needs permission, and shows your 5-hour and weekly usage limits and how full the context window is in the status line.
+Keeps you in the loop while Claude Code works, so you can leave sessions running and switch to other tasks: it beeps when Claude finishes a turn, asks you a question or needs permission, shows your 5-hour and weekly usage limits and how full the context window is in the status line, and opens an always-on-top window that tracks every running session.
 
 ## Install
 
@@ -55,6 +55,105 @@ How it works:
 - **Uninstalling** the plugin deletes its data directory, so run `--remove` first, or delete the `statusLine` key afterwards.
 
 Requirements: [`jq`](https://jqlang.org) (`apt install jq`, `brew install jq` or `winget install jqlang.jq`). Usage limits only exist for Claude Pro and Max subscriptions and appear after Claude's first response in a session; with an API key, only `ctx` shows.
+
+## Monitor window
+
+```
+/polaris-monitor:open-window
+```
+
+A small always-on-top card in the bottom-right corner of the screen with every running Claude Code session and the usage bars, so you can leave several sessions running and see at a glance which one needs you. Windows, WSL and macOS.
+
+| Dot | Meaning |
+|-----|---------|
+| green, pulsing | working |
+| red | finished, waiting for you |
+| blue | asked you a question |
+| yellow | waiting for a permission |
+
+- **Time** on the right: how long the session has been in that state.
+- **Subagents** show as indented rows under their session, with what each one is doing and for how long; a long description scrolls sideways. The arrow on the session collapses them (it then shows how many there are).
+- **Usage bars**: the same 5-hour and weekly limits as the status line, which saves them for the window. They turn amber at 80% and red at 95%. With your own status line, the bars stay empty.
+- **Mascot**: the Polaris star walks around the card while a session works, jumps on top while one waits for you and stands still when everything is quiet. Clawd, the Claude Code mascot, is available instead, and you can draw your own (see [Customizing](#customizing)).
+- **Drag** the card to move it. **Right-click** for: remove a session from the list (on a session row), show or hide the mascot, the mascot, a **Theme** submenu (Dark, Light, Midnight, High contrast and your own), a **Size** submenu (Small, Normal, Large), show usage, show subagents, window sound (off by default, since the beeps already alert you), opacity (card and mascot), volume and close. The choices are saved in `config.json`.
+- **Sounds.** With window sound on, it plays the system sounds; to use your own, put `question`, `finished` and `all-done` files (`.wav` or `.mp3`) in the monitor folder's `sounds/`, then reopen the window.
+
+How it opens:
+
+| Platform | Window | First run |
+|----------|--------|-----------|
+| Windows | PowerShell and WPF, from `~/.polaris-monitor` | nothing to install |
+| WSL | the same, on the Windows side: the files go to the Windows profile's `.polaris-monitor` | nothing to install |
+| macOS | Swift and AppKit, compiled in `~/.polaris-monitor` | needs the Xcode command line tools (`xcode-select --install`); compiles once, and again after updates |
+
+### Customizing
+
+Mascots and color themes are plain JSON files: the plugin ships `mascots.json` and `themes.json` next to the window, and your own go in the monitor folder's `custom/` (`~/.polaris-monitor/custom/`, on WSL the Windows profile's `.polaris-monitor\custom\`). Yours add to the plugin's, or replace an entry with the same key, and plugin updates never touch them. The window reloads both files within 2 seconds of a save, so you can draw with the window open; new entries show up in the right-click menu.
+
+A mascot is a grid of characters: `#` body, `o` eyes and `u` mouth (face color), `A` and `B` the two pairs of feet, which alternate while it walks, `.` empty. `pixel` is the width and height of one grid cell in pixels:
+
+```json
+{
+  "robot": {
+    "name": "Robot",
+    "sprite": [
+      ".#####.",
+      "#o###o#",
+      "#######",
+      "##uuu##",
+      ".A.B.A."
+    ],
+    "pixel": [3, 3],
+    "colors": { "body": "#94A3B8", "face": "#0F172A", "feet": "#475569", "outline": "#1E293B" }
+  }
+}
+```
+
+Rows must have the same width, the mascot must fit in 32 px of height and 64 px of width, and colors are `#RRGGBB` or `#AARRGGBB` (`outline` is optional).
+
+A theme sets any of these colors, and takes the Dark theme's for the ones it leaves out:
+
+| Key | Used for |
+|-----|----------|
+| `card`, `divider` | card background and the line above the usage bars |
+| `text`, `muted`, `faint`, `accent` | session names, secondary text, times, the subagent arrow |
+| `track`, `bar`, `barWarning`, `barCritical` | usage bars: empty part, below 80%, from 80%, from 95% |
+| `working`, `finished`, `question`, `permission` | the dots and their times |
+
+```json
+{ "ocean": { "name": "Ocean", "card": "#F2082F49", "bar": "#22D3EE", "working": "#2DD4BF" } }
+```
+
+An entry that breaks a rule is skipped (the window writes why to `monitor.log` on Windows), and a choice that no longer exists falls back to the star and the Dark theme.
+
+### Updates
+
+A single window runs at a time. After a plugin update, run the command again: the open window closes and the new version takes its place. The window never updates or relaunches itself, never reads your Claude login and never calls an API.
+
+Adapted from the open-source [ticlins-claude-monitor](https://github.com/LucasM-Maciel/ticlins-claude-monitor) (MIT); its license is kept in [`scripts/window/LICENSE-ticlins-claude-monitor.txt`](scripts/window/LICENSE-ticlins-claude-monitor.txt).
+
+### Session tracking
+
+Hooks record the state of every running session for the window:
+
+| Hook event | Recorded |
+|------------|----------|
+| `UserPromptSubmit` | `working` |
+| `Stop` | `waiting` (Claude finished its turn) |
+| `Notification` | `permission` for a permission request, `waiting` for the idle notice |
+| `SubagentStart`, `SubagentStop` | the session's subagents, with what each one is doing |
+| `SessionEnd` | the session is forgotten |
+
+- **Opt-in.** Nothing is written until the folder `~/.polaris-monitor` exists; opening the window creates it. On WSL the files go to the Windows profile's `.polaris-monitor` once it exists, because the window runs on Windows.
+- **One file per session** in `sessions/<session_id>.json`, written atomically, readable only by you (files `0600`, folder `0700`). Session and subagent ids are validated before they become file names.
+- **Subagents.** Each subagent shows what it is doing, read from the description Claude Code stores next to its transcript. When Claude finishes its turn while subagents still run, the session keeps showing as working until the last one stops. A subagent whose stop was missed is dropped after 2 hours.
+- **Names.** A session is named after its `/rename` title, then its automatic title, then its folder. Transcripts are only read when they are regular files under `~/.claude/projects` (or `$CLAUDE_CONFIG_DIR/projects`).
+
+- **Cleanup.** A session disappears when it ends. One that ended without telling (a closed terminal) is dropped by the window, and its file deleted, once its process is gone or, on Windows and WSL, after 6 hours without activity.
+
+Cloud sessions are not recorded. Requires `jq`, like the status line; without it the hooks do nothing.
+
+To stop tracking, close the window and delete `~/.polaris-monitor` (on WSL, also the Windows profile's `.polaris-monitor`).
 
 ## Platforms
 
@@ -113,8 +212,16 @@ echo '{"rate_limits":{"five_hour":{"used_percentage":24,"resets_at":'$(($(date +
   | bash plugins/monitor/scripts/statusline.sh
 ```
 
-Inside a session, `/hooks` lists the registered hooks. The automated tests use fake sound backends and a throwaway `settings.json`: `uv run pytest tests/plugins/monitor`.
+Render the window off screen with sample sessions and check what it drew (`out.png` and `out.png.txt`):
+
+```bash
+powershell -NoProfile -ExecutionPolicy Bypass -File plugins/monitor/scripts/window/window.ps1 -Snapshot out.png -Folder <folder>   # Windows
+xcrun swiftc -swift-version 5 -o /tmp/PolarisMonitor plugins/monitor/scripts/window/window.swift
+/tmp/PolarisMonitor --snapshot out.png --folder <folder>                                                                 # macOS
+```
+
+Inside a session, `/hooks` lists the registered hooks. The automated tests use fake sound backends and programs, a throwaway home and a throwaway `settings.json`; on Windows and macOS they also render both windows and check their pixels: `uv run pytest tests/plugins/monitor`.
 
 ## Roadmap
 
-- An always-on-top window that tracks every running session, adapted from the open-source [ticlins-claude-monitor](https://github.com/LucasM-Maciel/ticlins-claude-monitor) (MIT).
+- The monitor window on native Linux.
