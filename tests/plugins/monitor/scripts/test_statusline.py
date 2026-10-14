@@ -1,7 +1,8 @@
 """Tests for plugins/monitor/scripts/statusline.sh.
 
 Reset times are built relative to the current clock with a 30-second margin, so the
-rendered "time to reset" stays stable while the test runs.
+rendered "time to reset" stays stable while the test runs. Every test gets its own HOME, so
+the usage file shared with the monitor window never lands in the real one.
 """
 
 from __future__ import annotations
@@ -9,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import stat
 import subprocess
 import time
 from pathlib import Path
@@ -23,6 +25,14 @@ SCRIPT = REPO_ROOT / "plugins" / "monitor" / "scripts" / "statusline.sh"
 needs_jq = pytest.mark.skipif(shutil.which("jq") is None, reason="statusline.sh needs jq")
 
 GREEN, YELLOW, RED, RESET = "\033[32m", "\033[33m", "\033[31m", "\033[0m"
+
+
+@pytest.fixture(autouse=True)
+def fake_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    return home
 
 
 def window(percent: float, seconds_to_reset: int) -> dict[str, float]:
@@ -192,3 +202,88 @@ def test_asks_for_jq_when_it_is_missing(tmp_path: Path) -> None:
     env = {"PATH": str(tools), "HOME": str(tmp_path)}
 
     assert render({}, env=env) == "polaris-monitor: install jq to see usage limits"
+
+
+# Usage shared with the monitor window
+
+
+USAGE = {
+    "rate_limits": {
+        "five_hour": {"used_percentage": 23.5, "resets_at": 1_800_000_000},
+        "seven_day": {"used_percentage": 41.2, "resets_at": 1_800_100_000},
+    }
+}
+
+
+@needs_jq
+def test_usage_is_not_saved_until_the_window_was_opened(fake_home: Path) -> None:
+    render(USAGE)
+
+    assert list(fake_home.iterdir()) == []
+
+
+@needs_jq
+def test_usage_is_saved_for_the_monitor_window(fake_home: Path) -> None:
+    monitor = fake_home / ".polaris-monitor"
+    monitor.mkdir()
+    before = int(time.time())
+
+    output = render(USAGE)
+
+    saved = json.loads((monitor / "usage.json").read_text())
+    assert saved["five_hour"] == USAGE["rate_limits"]["five_hour"]
+    assert saved["seven_day"] == USAGE["rate_limits"]["seven_day"]
+    assert saved["updated"] >= before
+    assert output.startswith("5h ")
+    assert [p.name for p in monitor.iterdir()] == ["usage.json"]
+
+
+@needs_jq
+def test_a_render_without_limits_keeps_the_last_saved_usage(fake_home: Path) -> None:
+    monitor = fake_home / ".polaris-monitor"
+    monitor.mkdir()
+    render(USAGE)
+    saved = (monitor / "usage.json").read_text()
+
+    render({"context_window": context(34, 68_000)})
+
+    assert (monitor / "usage.json").read_text() == saved
+
+
+@needs_jq
+@pytest.mark.skipif(os.name == "nt", reason="POSIX file modes")
+def test_the_usage_file_is_private(fake_home: Path) -> None:
+    monitor = fake_home / ".polaris-monitor"
+    monitor.mkdir()
+
+    render(USAGE)
+
+    assert stat.S_IMODE((monitor / "usage.json").stat().st_mode) == 0o600
+
+
+@needs_jq
+@pytest.mark.skipif(os.name == "nt", reason="the WSL cache holds a POSIX path")
+def test_on_wsl_usage_goes_to_the_cached_windows_folder(fake_home: Path, tmp_path: Path) -> None:
+    monitor = fake_home / ".polaris-monitor"
+    monitor.mkdir()
+    windows_monitor = tmp_path / "c" / "Users" / "me" / ".polaris-monitor"
+    windows_monitor.mkdir(parents=True)
+    (monitor / "winpath").write_text(str(windows_monitor))
+
+    render(USAGE)
+
+    assert (windows_monitor / "usage.json").exists()
+    assert not (monitor / "usage.json").exists()
+
+
+@needs_jq
+@pytest.mark.skipif(os.name == "nt", reason="the WSL cache holds a POSIX path")
+@pytest.mark.parametrize("cached", ["relative/.polaris-monitor", "/a/../b/.polaris-monitor"])
+def test_a_tampered_windows_folder_cache_is_ignored(fake_home: Path, cached: str) -> None:
+    monitor = fake_home / ".polaris-monitor"
+    monitor.mkdir()
+    (monitor / "winpath").write_text(cached)
+
+    render(USAGE)
+
+    assert (monitor / "usage.json").exists()

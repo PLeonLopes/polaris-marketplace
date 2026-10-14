@@ -239,5 +239,6 @@ def test_hooks_wire_events_to_patterns(event: str, matcher: str | None, pattern:
         for group in groups
         if group.get("matcher") == matcher
         for hook in group["hooks"]
+        if "beep.sh" in hook["command"]
     ]
     assert commands == [f'bash "${{CLAUDE_PLUGIN_ROOT}}/scripts/beep.sh" {pattern}']

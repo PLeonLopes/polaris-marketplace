@@ -95,7 +95,28 @@ color_for() {
     fi
 }
 
+# Shares the usage limits with the monitor window, which never reads the Claude login.
+# Only once the window was opened (the monitor directory exists); on WSL, to the Windows
+# folder that session.sh cached. Best effort: it never changes what the status line prints.
+save_usage() {
+    local dir="$HOME/.polaris-monitor" win tmp windows_dir='^/[^[:cntrl:]]+/\.polaris-monitor$'
+    [ -d "$dir" ] || return 0
+    if [ -r "$dir/winpath" ]; then
+        win="$(head -c 400 "$dir/winpath")"
+        if [[ $win =~ $windows_dir && $win != *..* ]] && [ -d "$win" ]; then dir=$win; fi
+    fi
+    tmp="$dir/.usage.$$.tmp"
+    if (umask 077 && jq -ce --argjson now "$NOW" '
+        select(.rate_limits.five_hour != null or .rate_limits.seven_day != null)
+        | {updated: $now, five_hour: .rate_limits.five_hour, seven_day: .rate_limits.seven_day}
+    ' <<< "$INPUT" > "$tmp"); then
+        mv -f "$tmp" "$dir/usage.json"
+    fi
+    rm -f "$tmp"
+}
+
 NOW="$(date +%s)"
+save_usage 2> /dev/null
 LINE=""
 while read -r label percent first second; do
     [ -n "$label" ] || continue

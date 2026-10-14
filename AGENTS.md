@@ -47,7 +47,7 @@ claude plugin validate .                  # Claude Code manifest schema
 
 CI scripts in `scripts/ci/` are hyphenated entry points (`#!/usr/bin/env python3` + PEP 723 inline metadata), run with `uv run scripts/ci/<name>.py`. Tests mirror the repository layout — see [tests/README.md](tests/README.md).
 
-Shell scripts are linted with [ShellCheck](https://www.shellcheck.net) (detected by shebang, so extensionless hooks too), pinned through `shellcheck-py` in `uv.lock`. Scripts shipped in plugins must run on Linux, macOS (its `/bin/bash` is Bash 3.2) and Windows (Git Bash), and `.gitattributes` keeps them LF everywhere. Tests run them through `tests.shell.BASH`, never a bare `"bash"`.
+Shell scripts are linted with [ShellCheck](https://www.shellcheck.net) (detected by shebang, so extensionless hooks too), pinned through `shellcheck-py` in `uv.lock`. Scripts shipped in plugins must run on Linux, macOS (its `/bin/bash` is Bash 3.2) and Windows (Git Bash), and `.gitattributes` keeps them LF everywhere. PowerShell files must run on Windows PowerShell 5.1 and stay ASCII (5.1 reads a BOM-less file as ANSI); Swift files are compiled with `-swift-version 5`. Neither has a linter here: the tests render them on the Windows and macOS runners. Tests run them through `tests.shell.BASH`, never a bare `"bash"`.
 
 Spell checking runs with `--write-changes`: Portuguese words it would wrongly "fix" are listed in `[tool.codespell]` in `pyproject.toml`. Add new ones there instead of disabling the hook.
 
